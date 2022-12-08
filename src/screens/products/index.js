@@ -1,19 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FlatList } from "react-native";
+import { useSelector, useDispatch } from 'react-redux';
+import { filterProducts, selectProduct } from '../../store/actions';
+import { ProductItem } from "../../components";
 import { styles } from "./styles";
-import { PRODUCTS } from "../../constants/data";
-import { COLORS } from "../../constants/themes/colors";
-import ProductItem from "../../components/product-item";
 
-const Products = ({ navigation, route }) => {
+const Products = ({ navigation }) => {
 
-    const { categoryId, color} = route.params;   
+    const category = useSelector((state) => state.category.selected);
+    const filteredProducts = useSelector((state) => state.products.filteredProducts);
 
-    const filteredProducts = PRODUCTS.filter(product => product.categoryId === categoryId);
+    const dispatch = useDispatch();
+    useEffect(() => {
+        dispatch(filterProducts(category.id));
+    }, []);
 
-    const onSelected = (item) => {  navigation.navigate('Product', { title: item.title, productId: item.id });    }
-    
-    const renderItem = ({ item }) => <ProductItem item={item} onSelected={onSelected} color={color}/>
+    const onSelected = (item) => {  
+    dispatch(selectProduct(item.id));
+        navigation.navigate('Product', { title: item.title });    
+    }
+    const renderItem = ({ item }) => <ProductItem item={item} onSelected={onSelected} color={category.color}/>
 
     return (
         <FlatList
